@@ -206,6 +206,8 @@ app.put("/api/chats/:id", async (req, res) => {
   }
 });
 
+app.use('/api', connectDB);
+
 app.get(/.*$/, (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
@@ -216,7 +218,7 @@ app.use((err, req, res, next) => {
 });
 
 
-app.use('/api', connectDB);
+
 
 
 if (process.env.NODE_ENV !== 'production') {
