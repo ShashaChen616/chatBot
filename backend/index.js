@@ -6,9 +6,20 @@ import { setServers } from "node:dns/promises";
 import Chat from "./models/chat.js";
 import UserChats from "./models/userChats.js";
 import { clerkMiddleware, getAuth } from '@clerk/express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const port = process.env.PORT || 3000;
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
+
+const distPath = path.join(__dirname, 'dist');
+
+// Serve the files raw
+app.use(express.static(distPath));
 
 app.use(
   cors({
@@ -174,6 +185,10 @@ app.put("/api/chats/:id", async (req, res) => {
     console.log(err)
     res.status(500).send("Error adding conversation!")
   }
+});
+
+app.get(/.*$/, (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 app.use((err, req, res, next) => {
