@@ -1,0 +1,18 @@
+.dashboardLayout {
+    display: flex;
+    padding-top: 20px;
+    height: 100%;
+    overflow: hidden;
+
+    .menu {
+        /* flex: 1; */
+        /* min-width: 200px; */
+        flex-shrink: 0;
+    }
+
+    .content {
+        flex: 1;
+        background-color: #12101b;
+        overflow-y: auto;
+    }
+}
