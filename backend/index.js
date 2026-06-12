@@ -41,6 +41,25 @@ const connect = async () => {
   }
 }
 
+// A middleware that checks and handles the MongoDB connection dynamically
+const connectDB = async (req, res, next) => {
+  // Check Mongoose's internal connection state
+  // 1 = connected, 2 = connecting. If true, jump straight to your API code.
+  if (mongoose.connection.readyState >= 1) {
+    return next();
+  }
+  
+  try {
+    console.log("Database connection not found. Reconnecting...");
+    await mongoose.connect(process.env.MONGO ?? '');
+    console.log("Connected to MongoDB successfully!");
+    next(); // Pass control to the targeted route
+  } catch (err) {
+    console.error("Database connection error:", err);
+    res.status(500).send("Database connection failed");
+  }
+};
+
 const imagekit = new ImageKit({
   urlEndpoint: process.env.IMAGE_KIT_ENDPOINT ?? '',
   publicKey: process.env.IMAGE_KIT_PUBLIC_KEY ?? '',
@@ -196,7 +215,13 @@ app.use((err, req, res, next) => {
   res.status(401).send('Unauthenticated!');
 });
 
-app.listen(port, () => {
-  connect()
-  console.log(`Server is running on 3000`);
-}); 
+
+app.use('/api', connectDB);
+
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(3000, async () => {
+    await connect();
+    console.log('Server running locally on port 3000');
+  });
+}
